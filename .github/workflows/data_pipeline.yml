@@ -1,0 +1,85 @@
+name: Data Pipeline Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: Cygnus$2025
+          MYSQL_DATABASE: bronze
+          MYSQL_USER: siva
+          MYSQL_PASSWORD: password
+        ports:
+          - 3307:3307
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: #DBPost@2k23$
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set Up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure Databases
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mysql-client postgresql-client
+
+        # Wait for MySQL and PostgreSQL to be ready
+        sleep 30
+
+        # Create sample data for MySQL
+        mysql -h 127.0.0.1 -P 3306 -u user -ppassword -e "
+          CREATE DATABASE IF NOT EXISTS testdb;
+          USE testdb;
+          CREATE TABLE IF NOT EXISTS customers (
+            CustomerID INT PRIMARY KEY,
+            Name VARCHAR(255),
+            Email VARCHAR(255),
+            Age INT,
+            City VARCHAR(255)
+          );
+          INSERT INTO customers VALUES (1, 'John Doe', 'john@example.com', 30, 'New York'), 
+                                        (2, 'Jane Smith', 'jane@example.com', 25, 'Chicago');
+        "
+
+    - name: Run Data Pipeline Script
+      env:
+        MYSQL_HOST: 127.0.0.1
+        MYSQL_PORT: 3307
+        MYSQL_USER: siva
+        MYSQL_PASSWORD: Cygnus$2025
+        MYSQL_DATABASE: bronze
+        POSTGRES_HOST: 66.240.213.71
+        POSTGRES_PORT: 5432
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: #DBPost@2k23$
+        POSTGRES_DATABASE: postgres
+      run: python data_pipeline.py
