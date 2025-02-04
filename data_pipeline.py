@@ -17,7 +17,7 @@ mysql_config = {
 }
 
 # File path for CSV data
-csv_file = r'C:\Users\siva\OneDrive\Documents\Databricks\orders_data.csv'
+csv_file = r'C:\Users\siva\OneDrive\Documents\Databricks\order_data.csv'
 
 # Initialize connection as None
 conn = None
