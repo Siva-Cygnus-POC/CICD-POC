@@ -2,7 +2,6 @@ import pandas as pd
 import mysql.connector
 import configparser
 
-#trigger the workflow
 # Load configuration from config.ini
 config = configparser.ConfigParser()
 config.read('config.ini')
