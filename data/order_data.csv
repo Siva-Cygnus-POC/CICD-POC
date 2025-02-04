@@ -1,0 +1,6 @@
+OrderID,CustomerID,Product,Quantity,OrderDate
+101,1,Laptop,2,2025-01-15
+102,2,Smartphone,1,2025-01-20
+103,3,Headphones,3,2025-01-22
+104,4,Monitor,1,2025-01-25
+105,5,Tablet,2,2025-02-01
